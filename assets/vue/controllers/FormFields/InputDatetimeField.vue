@@ -1,7 +1,7 @@
 <template>
     <div class="form-field">
-        <label for="{{ fieldId }}">{{ label }}</label>
-        <input type="datetime-local" id="{{ fieldId }}" v-model="value" />
+        <label :for="fieldId">{{ label }}</label>
+        <input type="datetime-local" :id="fieldId" v-model="value" />
         <span class="error" v-if="isValid === false">{{ assertion?.message }}</span>
     </div>
 </template>
@@ -9,8 +9,8 @@
 <script>
     export default {
         props: {
-            modelValue: 'string',
-            label: 'string',
+            modelValue: String,
+            label: String,
             assertion: {
                 required: false,
                 type: Object,
@@ -29,8 +29,18 @@
         },
         methods: {
             validate() {
-                this.isValid = this.assertion && this.assertion.regex.test(this.value ? this.value : '');
+                if (this.assertion !== undefined) {
+                    this.isValid = this.assertion.regex.test(this.value ? this.value : '')
+                } else {
+                    this.isValid = true;
+                }
+                
                 this.$emit("validation", this.isValid);
+            },
+            reset() {
+                this.isValid = null;
+                this.$emit("validation", this.isValid);
+                this.$emit("update:modelValue", null);
             }
         },
         computed: {
@@ -40,8 +50,10 @@
             },
         },
         watch: {
-            value() {
-                this.validate();
+            value(newVal) {
+                if (newVal !== null) {
+                    this.validate();
+                }
             },
         }
     }

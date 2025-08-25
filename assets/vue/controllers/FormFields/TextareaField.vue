@@ -9,9 +9,9 @@
 <script>
     export default {
         props: {
-            modelValue: 'string',
-            label: 'string',
-            placeholder: 'string',
+            modelValue: String,
+            label: String,
+            placeholder: String,
             assertion: {
                 type: Object,
                 validator(value) {
@@ -29,8 +29,18 @@
         },
         methods: {
             validate() {
-                this.isValid = this.assertion && this.assertion.regex.test(this.value ? this.value : '');
+                if (this.assertion !== undefined) {
+                    this.isValid = this.assertion.regex.test(this.value ? this.value : '')
+                } else {
+                    this.isValid = true;
+                }
+                
                 this.$emit("validation", this.isValid);
+            },
+            reset() {
+                this.isValid = null;
+                this.$emit("validation", this.isValid);
+                this.$emit("update:modelValue", null);
             }
         },
         computed: {
@@ -40,8 +50,10 @@
             },
         },
         watch: {
-            value() {
-                this.validate();
+            value(newVal) {
+                if (newVal !== null) {
+                    this.validate();
+                }
             },
         }
     }

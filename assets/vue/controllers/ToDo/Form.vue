@@ -11,6 +11,7 @@
         <InputDatetimeField
             label="Data realizacji"
             ref="dueDateField"
+            :assertion="{ regex: /^.{1,}$/, message: 'Pole nie może być puste' }"
             v-model="dueDate"
             @validation="fieldValid.dueDate = $event"
         />
@@ -23,6 +24,7 @@
                 { value: 'high', label: 'Wysoki' }
             ]"
             ref="priorityField"
+            :assertion="{ regex: /^.{1,}$/, message: 'Pole nie może być puste' }"
             v-model="priority"
             @validation="fieldValid.priority = $event"
         />
@@ -37,7 +39,7 @@
         <TextareaField
             label="Notatki"
             placeholder="Notatki"
-            :assertion="{ regex: /^.{1,}$/, message: 'Nie może być puste' }"
+            :assertion="{ regex: /^.{1,}$/, message: 'Pole nie może być puste' }"
             ref="notesField"
             v-model="notes"
             @validation="fieldValid.notes = $event"
@@ -80,11 +82,11 @@
         },
         methods: {
             clear() {
-                this.title = null;
-                this.dueDate = null;
-                this.priority = null;
-                this.category = null;
-                this.notes = null;
+                this.$refs.titleField.reset();
+                this.$refs.dueDateField.reset();
+                this.$refs.priorityField.reset();
+                this.$refs.categoryField.reset();
+                this.$refs.notesField.reset();
             },
             create() {
                 if (!this.isFormValid()) {
