@@ -7,12 +7,16 @@
             :item="item"
             @remove="removeItem"
         />
+        <li v-if="items.length === 0">
+            Brak zadań do wykonania.
+        </li>
     </ul>
 </template>
 
 <script>
     import Form from './Form.vue';
     import Item from './Item.vue';
+    import axios from "axios";
 
     export default {
         components: {
@@ -29,46 +33,31 @@
                 this.items = this.items.filter(item => item.id !== itemId);
             },
             addItem(newItem) {
-                this.items.push(newItem);
+                axios
+                    .post('todo/create', newItem)
+                    .then((response)  => {
+                        newItem.id = response.data.id;
+                        newItem.createdAt = new Date(response.data.createdAt);
+                        this.items.push(newItem);
+                    })
+                ;
             },
             loadItems(items) {
                 items.forEach(item => {
                     item.createdAt = new Date(item.createdAt);
                     item.dueDate = new Date(item.dueDate);
-                    this.addItem(item);
+                    this.items.push(item);
                 });
             },
             getItems() {
-                const mockedItems = [
-                    {
-                        "id": 1,
-                        "title": "Kupić mleko",
-                        "completed": false,
-                        "createdAt": "2025-08-21 10:30:00",
-                        "dueDate": "2025-08-22 18:00:00",
-                        "priority": "high",
-                        "category": "zakupy",
-                        "notes": "Kupić też jajka"
-                    },
-                    {
-                        "id": 2,
-                        "title": "Kupić mleko",
-                        "completed": false,
-                        "createdAt": "2025-08-21 10:30:00",
-                        "dueDate": "2025-08-22 18:00:00",
-                        "priority": "high",
-                        "category": "zakupy",
-                        "notes": "Kupić też jajka"
-                    }
-                ];
-
-                return mockedItems;
+                axios
+                    .get('todo/list')
+                    .then(response => (this.loadItems(response.data)))
+                ;
             }
         },
         mounted() {
-            this.loadItems(
-                this.getItems()
-            );
+            this.getItems();
         }
     }
 </script>
