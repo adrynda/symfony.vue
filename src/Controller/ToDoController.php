@@ -30,7 +30,7 @@ final class ToDoController extends AbstractController
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        // $this->mockList()
+        $this->mockList();
         return $this->json($this->request->getSession()->get('todo.list', []));
     }
 
@@ -46,6 +46,19 @@ final class ToDoController extends AbstractController
         $this->request->getSession()->set('todo.list', $list);
         $this->request->getSession()->set('todo.id', $id);
         return $this->json($item);
+    }
+
+    #[Route('/delete', name: 'create', methods: ['DELETE'])]
+    public function delete()
+    {
+        $id = $this->request->getPayload()->getInt('id');
+        $list = $this->request->getSession()->get('todo.list', []);
+        $newList = array_filter($list, fn($item) => $item['id'] !== $id);
+        if ($list === $newList) {
+            throw $this->createNotFoundException('Item not found');
+        }
+        $this->request->getSession()->set('todo.list', $newList);
+        return $this->json(null, 204);
     }
 
     private function mockList(): void
